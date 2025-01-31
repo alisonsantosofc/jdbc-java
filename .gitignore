@@ -1,0 +1,43 @@
+# Compilação
+/bin/
+/build/
+/out/
+*.class
+
+# Arquivos de log
+*.log
+*.tmp
+
+# Configurações da IDE (IntelliJ IDEA, Eclipse, VS Code)
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# Dependências do Maven
+.mvn/
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+dependency-reduced-pom.xml
+release.properties
+
+# Dependências do Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Arquivos temporários do sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Arquivos gerados pelo Java
+hs_err_pid*
+replay_pid*
+
+# Arquivos de ambiente
+.env
