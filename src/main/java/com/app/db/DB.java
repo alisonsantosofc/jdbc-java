@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DBConnection {
+public class DB {
   private static final String URL = "jdbc:mysql://localhost:3306/coursejdbc";
   private static final String USER = "root";
   private static final String PASSWORD = "mysql";

@@ -9,17 +9,9 @@ import com.app.models.repositories.SellerRepository;
 
 public class App {
   public static void main(String[] args) {
-    Department department = new Department(1, "Books");
-    Seller seller = new Seller(
-      1, 
-      "John Doe", 
-      "john@email.com", 
-      new Date(), 
-      3000.0, 
-      department
-    );
-
     SellerRepository sellerRepository = RepositoriesProvider.createSellerRepository();
+
+    Seller seller = sellerRepository.findById(3);
 
     System.out.println(seller);
   }
