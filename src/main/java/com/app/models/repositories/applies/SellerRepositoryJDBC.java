@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,41 @@ public class SellerRepositoryJDBC implements SellerRepository{
 
   @Override
   public void create(Seller seller) {
-    // TODO Auto-generated method stub
+    PreparedStatement statement = null;
+
+    try {
+      statement = connection.prepareStatement(
+        "INSERT INTO seller " +
+        "(name, email, birthDate, baseSalary, departmentId) " +
+        "VALUES " +
+        "(?, ?, ?, ?, ?)",
+        Statement.RETURN_GENERATED_KEYS
+      );
+      statement.setString(1, seller.getName());
+      statement.setString(2, seller.getEmail());
+      statement.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()));
+      statement.setDouble(4, seller.getBaseSalary());
+      statement.setInt(5, seller.getDepartment().getId());
+
+      int rowsAffected = statement.executeUpdate();
+
+      if (rowsAffected > 0) {
+        ResultSet resultSet = statement.getGeneratedKeys();
+
+        if (resultSet.next()) {
+          int id = resultSet.getInt(1);
+          seller.setId(id);
+        }
+
+        DB.closeResultSet(resultSet);
+      } else {
+        throw new DBException("Unexpected error! No rows affected.");
+      }
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage());
+    } finally {
+      DB.closeStatement(statement);
+    }
   }
 
   @Override
