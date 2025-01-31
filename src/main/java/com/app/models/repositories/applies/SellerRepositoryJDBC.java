@@ -64,12 +64,49 @@ public class SellerRepositoryJDBC implements SellerRepository{
 
   @Override
   public void update(Seller seller) {
-    // TODO Auto-generated method stub
+    PreparedStatement statement = null;
+
+    try {
+      statement = connection.prepareStatement(
+        "UPDATE seller " +
+        "SET name = ?, email = ?, birthDate = ?, baseSalary = ?, departmentId = ? " +
+        "WHERE id = ?"
+      );
+      statement.setString(1, seller.getName());
+      statement.setString(2, seller.getEmail());
+      statement.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()));
+      statement.setDouble(4, seller.getBaseSalary());
+      statement.setInt(5, seller.getDepartment().getId());
+      statement.setInt(6, seller.getId());
+
+      statement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage());
+    } finally {
+      DB.closeStatement(statement);
+    }
   }
 
   @Override
   public void deleteById(Integer id) {
-    // TODO Auto-generated method stub
+    PreparedStatement statement = null;
+
+    try {
+      statement = connection.prepareStatement(
+        "DELETE FROM seller WHERE id = ?"
+      );
+      statement.setInt(1, id);
+
+      int rowsAffected = statement.executeUpdate();
+
+      if (rowsAffected == 0) {
+        throw new DBException("Invalid seller id.");
+      }
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage());
+    } finally {
+      DB.closeStatement(statement);
+    }
   }
 
   @Override
