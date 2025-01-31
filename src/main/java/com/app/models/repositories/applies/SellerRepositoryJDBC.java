@@ -70,8 +70,40 @@ public class SellerRepositoryJDBC implements SellerRepository{
 
   @Override
   public List<Seller> findAll() {
-    // TODO Auto-generated method stub
-    return null;
+    PreparedStatement statement = null;
+    ResultSet resultSet = null;
+
+    try {
+      statement = connection.prepareStatement(
+        "SELECT seller.*,department.name as departmentName " +
+        "FROM seller INNER JOIN department " +
+        "ON seller.departmentId = department.id " +
+        "ORDER BY name"
+      );
+      resultSet = statement.executeQuery();
+
+      List<Seller> sellers = new ArrayList<Seller>();
+      Map<Integer, Department> departmentMap = new HashMap<>();
+      
+      while (resultSet.next()) {
+        Department sellersDepartment = departmentMap.get(resultSet.getInt("departmentId"));
+
+        if (sellersDepartment == null) {
+          sellersDepartment = newDepartment(resultSet);
+          departmentMap.put(resultSet.getInt("departmentId"), sellersDepartment);
+        }
+
+        Seller seller = newSeller(resultSet, sellersDepartment);
+        sellers.add(seller);
+      }
+
+      return sellers;
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage());
+    } finally {
+      DB.closeStatement(statement);
+      DB.closeResultSet(resultSet);
+    }
   }
 
   @Override

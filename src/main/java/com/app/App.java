@@ -21,5 +21,12 @@ public class App {
       System.out.println(seller);
     }
     System.out.println();
+
+    System.out.println("=== Test #3: Seller findAll() ===");
+    sellers = sellerRepository.findAll();
+    for (Seller seller : sellers) {
+      System.out.println(seller);
+    }
+    System.out.println();
   }
 }
