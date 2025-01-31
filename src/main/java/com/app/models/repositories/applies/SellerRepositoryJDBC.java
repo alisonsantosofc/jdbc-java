@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.app.db.DB;
 import com.app.db.DBException;
@@ -50,17 +53,8 @@ public class SellerRepositoryJDBC implements SellerRepository{
       resultSet = statement.executeQuery();
 
       if (resultSet.next()) {
-        Department department = new Department();
-        department.setId(resultSet.getInt("departmentId"));
-        department.setName(resultSet.getString("departmentName"));
-
-        Seller seller = new Seller();
-        seller.setId(resultSet.getInt("id"));
-        seller.setName(resultSet.getString("name"));
-        seller.setEmail(resultSet.getString("email"));
-        seller.setBaseSalary(resultSet.getDouble("baseSalary"));
-        seller.setBirthDate(resultSet.getDate("birthDate"));
-        seller.setDepartment(department);
+        Department department = newDepartment(resultSet);
+        Seller seller = newSeller(resultSet, department);
 
         return seller;
       }
@@ -78,5 +72,65 @@ public class SellerRepositoryJDBC implements SellerRepository{
   public List<Seller> findAll() {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public List<Seller> findByDepartmentId(Integer departmentId ) {
+    PreparedStatement statement = null;
+    ResultSet resultSet = null;
+
+    try {
+      statement = connection.prepareStatement(
+        "SELECT seller.*,department.name as departmentName " +
+        "FROM seller INNER JOIN department " +
+        "ON seller.departmentId = department.id " +
+        "WHERE departmentId = ? " +
+        "ORDER BY name"
+      );
+      statement.setInt(1, departmentId);
+      resultSet = statement.executeQuery();
+
+      List<Seller> sellers = new ArrayList<Seller>();
+      Map<Integer, Department> departmentMap = new HashMap<>();
+      
+      while (resultSet.next()) {
+        Department sellersDepartment = departmentMap.get(resultSet.getInt("departmentId"));
+
+        if (sellersDepartment == null) {
+          sellersDepartment = newDepartment(resultSet);
+          departmentMap.put(resultSet.getInt("departmentId"), sellersDepartment);
+        }
+
+        Seller seller = newSeller(resultSet, sellersDepartment);
+        sellers.add(seller);
+      }
+
+      return sellers;
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage());
+    } finally {
+      DB.closeStatement(statement);
+      DB.closeResultSet(resultSet);
+    }
+  }
+
+  private Department newDepartment(ResultSet resultSet) throws SQLException {
+    Department department = new Department();
+    department.setId(resultSet.getInt("departmentId"));
+    department.setName(resultSet.getString("departmentName"));
+
+    return department;
+  }
+
+  private Seller newSeller(ResultSet resultSet, Department department) throws SQLException {
+    Seller seller = new Seller();
+    seller.setId(resultSet.getInt("id"));
+    seller.setName(resultSet.getString("name"));
+    seller.setEmail(resultSet.getString("email"));
+    seller.setBaseSalary(resultSet.getDouble("baseSalary"));
+    seller.setBirthDate(resultSet.getDate("birthDate"));
+    seller.setDepartment(department);
+
+    return seller;
   }
 }
