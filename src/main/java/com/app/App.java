@@ -1,7 +1,10 @@
 package com.app;
 
+import com.app.models.entities.Department;
+
 public class App {
   public static void main(String[] args) {
-    System.out.println("Hello World!");
+    Department department = new Department(1, "Books");
+    System.out.println(department);
   }
 }
